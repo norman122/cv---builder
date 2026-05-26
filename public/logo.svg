@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Document body -->
+  <path d="M20 10 L68 10 L80 22 L80 90 L20 90 Z" />
+  <!-- Folded corner -->
+  <path d="M68 10 L68 22 L80 22" />
+  <!-- Head circle -->
+  <circle cx="50" cy="38" r="10" />
+  <!-- Shoulders / person silhouette -->
+  <path d="M30 62 Q30 50 50 50 Q70 50 70 62" />
+  <!-- Text lines -->
+  <line x1="30" y1="72" x2="70" y2="72" />
+  <line x1="30" y1="81" x2="58" y2="81" />
+</svg>
