@@ -17,6 +17,89 @@ async function callAI(prompt, systemInstruction = '') {
   return callGeminiFunction(prompt, systemInstruction);
 }
 
+function extractJsonObject(text) {
+  const fencedMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fencedMatch) {
+    try {
+      return JSON.parse(fencedMatch[1].trim());
+    } catch {
+      // Fall through to balanced object extraction.
+    }
+  }
+
+  const start = text.indexOf('{');
+  if (start === -1) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let index = start; index < text.length; index += 1) {
+    const char = text[index];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (char === '\\') {
+      escaped = true;
+      continue;
+    }
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+
+    if (char === '{') depth += 1;
+    if (char === '}') depth -= 1;
+    if (depth === 0) {
+      try {
+        return JSON.parse(text.slice(start, index + 1));
+      } catch {
+        return null;
+      }
+    }
+  }
+
+  return null;
+}
+
+function clampScore(value, fallback = 0) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  return Math.max(0, Math.min(100, Math.round(number)));
+}
+
+function normalizeAtsAnalysis(raw) {
+  const breakdown = raw?.breakdown || {};
+  return {
+    score: clampScore(raw?.score, 50),
+    breakdown: {
+      verbs: Math.max(0, Math.min(20, Math.round(Number(breakdown.verbs) || 0))),
+      metrics: Math.max(0, Math.min(25, Math.round(Number(breakdown.metrics) || 0))),
+      keywords: Math.max(0, Math.min(25, Math.round(Number(breakdown.keywords) || 0))),
+      formatting: Math.max(0, Math.min(15, Math.round(Number(breakdown.formatting) || 0))),
+      readability: Math.max(0, Math.min(15, Math.round(Number(breakdown.readability) || 0))),
+    },
+    suggestedKeywords: Array.isArray(raw?.suggestedKeywords) ? raw.suggestedKeywords.slice(0, 16).map(item => ({
+      keyword: String(item.keyword || '').trim(),
+      status: item.status === 'matched' ? 'matched' : 'missing',
+      importance: item.importance === 'high' ? 'high' : 'medium',
+    })).filter(item => item.keyword) : [],
+    verbAudit: Array.isArray(raw?.verbAudit) ? raw.verbAudit.slice(0, 5).map(item => ({
+      foundVerb: String(item.foundVerb || 'weak phrasing'),
+      sentence: String(item.sentence || ''),
+      suggestion: String(item.suggestion || ''),
+    })).filter(item => item.sentence || item.suggestion) : [],
+    metricAudit: Array.isArray(raw?.metricAudit) ? raw.metricAudit.slice(0, 5).map(item => ({
+      sentence: String(item.sentence || ''),
+      suggestion: String(item.suggestion || ''),
+    })).filter(item => item.sentence || item.suggestion) : [],
+    coachAdvice: Array.isArray(raw?.coachAdvice) ? raw.coachAdvice.slice(0, 5).map(String) : [],
+  };
+}
+
 export async function enhanceText(text, type = 'summary') {
   const prompt = `Rewrite this resume ${type} to be more professional, concise, and impactful. Use strong action verbs and quantify achievements where possible. Return ONLY the improved text, no explanations:\n\n"${text}"`;
   return callAI(prompt);
@@ -70,6 +153,37 @@ ${jobDescription}`;
     return JSON.parse(jsonMatch[0]);
   }
   throw new Error('Failed to parse AI response');
+}
+
+export async function analyzeAts(cvData) {
+  const systemInstruction = `You are an ATS resume auditor. Analyze the provided CV JSON for applicant tracking system strength, recruiter readability, action verbs, keyword coverage, quantified metrics, and formatting clarity.
+
+Return ONLY valid JSON with this exact shape:
+{
+  "score": 0,
+  "breakdown": { "verbs": 0, "metrics": 0, "keywords": 0, "formatting": 0, "readability": 0 },
+  "suggestedKeywords": [{ "keyword": "string", "status": "matched" | "missing", "importance": "high" | "medium" }],
+  "verbAudit": [{ "foundVerb": "string", "sentence": "string", "suggestion": "string" }],
+  "metricAudit": [{ "sentence": "string", "suggestion": "string" }],
+  "coachAdvice": ["string"]
+}
+
+Scoring rules:
+- score is 0-100.
+- verbs is 0-20.
+- metrics is 0-25.
+- keywords is 0-25.
+- formatting is 0-15.
+- readability is 0-15.
+- suggestedKeywords should include matched and missing role-relevant terms.
+- verbAudit should identify weak phrasing and propose stronger bullet rewrites.
+- metricAudit should identify statements that need numbers, scope, scale, frequency, cost, users, revenue, time saved, or percentages.
+- coachAdvice should be practical and concise.`;
+
+  const result = await callAI(`CV JSON:\n${JSON.stringify(cvData, null, 2)}`, systemInstruction);
+  const parsed = extractJsonObject(result);
+  if (!parsed) throw new Error('Gemini returned an invalid ATS analysis format');
+  return normalizeAtsAnalysis(parsed);
 }
 
 export async function chatWithAI(message, cvContext = '', cvDataJSON = '') {

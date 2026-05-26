@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { chatWithAI, enhanceText, generateBullets, generateSummary, suggestSkills, generateFromJobDescription, generateCvUpdate } from '../utils/ai';
+import { chatWithAI, enhanceText, generateBullets, generateSummary, suggestSkills, generateFromJobDescription, generateCvUpdate, analyzeAts } from '../utils/ai';
 
 const emptyPersonalInfo = {
   fullName: '',
@@ -521,6 +521,19 @@ export function useAI(cvData, updateCvData) {
     }
   }, []);
 
+  const analyzeResumeAts = useCallback(async () => {
+    if (!cvData) return null;
+    setIsLoading(true);
+    try {
+      return await analyzeAts(cvData);
+    } catch (err) {
+      console.error('ATS analysis error:', err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [cvData]);
+
   return {
     messages,
     isLoading,
@@ -530,6 +543,7 @@ export function useAI(cvData, updateCvData) {
     generateCvSummary,
     suggestSkillsForRole,
     generateFromJob,
+    analyzeResumeAts,
     hasApiKey: true,
   };
 }

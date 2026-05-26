@@ -2,12 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Download, Upload, FileDown, Sparkles, Palette, PenTool,
-  Eye, Bot, X, Menu, ChevronLeft, ChevronRight, Loader2
+  Eye, Bot, X, Menu, ChevronLeft, ChevronRight, Loader2, Award
 } from 'lucide-react';
 import { useCV } from './hooks/useCV';
 import { useAI } from './hooks/useAI';
 import Editor from './components/Editor';
 import AIChat from './components/AIChat';
+import AtsAnalysis from './components/AtsAnalysis';
 import ThemeCustomizer from './components/ThemeCustomizer';
 import { ClassicTemplate, ModernTemplate, MinimalTemplate } from './components/Preview';
 import { downloadPDF } from './utils/pdf.js';
@@ -15,6 +16,7 @@ import { downloadPDF } from './utils/pdf.js';
 const TABS = [
   { id: 'editor', label: 'Editor', icon: PenTool },
   { id: 'design', label: 'Design', icon: Palette },
+  { id: 'ats', label: 'ATS Audit', icon: Award },
   { id: 'ai', label: 'AI Assistant', icon: Bot },
 ];
 
@@ -29,6 +31,8 @@ function App() {
   const [activeTab, setActiveTab] = useState('editor');
   const [mobileView, setMobileView] = useState('editor'); // 'editor' | 'preview'
   const [isExporting, setIsExporting] = useState(false);
+  const [atsAnalysis, setAtsAnalysis] = useState(null);
+  const [isAnalyzingAts, setIsAnalyzingAts] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const importRef = useRef(null);
   const previewRef = useRef(null);
@@ -48,6 +52,10 @@ function App() {
     window.addEventListener('resize', updateScale);
     return () => window.removeEventListener('resize', updateScale);
   }, [sidebarCollapsed]);
+
+  useEffect(() => {
+    setAtsAnalysis(null);
+  }, [cvData]);
 
   // AI section enhancement
   const handleAIEnhance = async (sectionId, textOrRole, typeOrCompany, itemIdx) => {
@@ -83,6 +91,19 @@ function App() {
       alert('PDF export failed: ' + err.message);
     }
     setIsExporting(false);
+  };
+
+  const handleAnalyzeAts = async () => {
+    setIsAnalyzingAts(true);
+    try {
+      const result = await ai.analyzeResumeAts();
+      if (result) setAtsAnalysis(result);
+    } catch (err) {
+      console.error('ATS analysis failed:', err);
+      alert('ATS analysis failed: ' + err.message);
+    } finally {
+      setIsAnalyzingAts(false);
+    }
   };
 
   // File import
@@ -223,6 +244,16 @@ function App() {
                 {activeTab === 'design' && (
                   <div className="p-5">
                     <ThemeCustomizer theme={theme} setTheme={setTheme} />
+                  </div>
+                )}
+                {activeTab === 'ats' && (
+                  <div className="p-5">
+                    <AtsAnalysis
+                      analysis={atsAnalysis}
+                      onAnalyze={handleAnalyzeAts}
+                      isAnalyzing={isAnalyzingAts}
+                      hasResume={Boolean(cvData.personalInfo.fullName || cvData.personalInfo.title || cvData.sections.length)}
+                    />
                   </div>
                 )}
                 {activeTab === 'ai' && (
