@@ -165,7 +165,7 @@ export default function AIChat({ messages, isLoading, onSend, hasApiKey }) {
       <form onSubmit={handleSubmit} className="p-3 border-t border-slate-200 bg-white">
         {!hasApiKey && (
           <div className="mb-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-[10px] text-amber-700 font-medium">
-            Add <code className="bg-amber-100 px-1 rounded">VITE_GEMINI_API_KEY</code> to <code className="bg-amber-100 px-1 rounded">.env</code> to enable AI
+            Add <code className="bg-amber-100 px-1 rounded">GEMINI_API_KEY</code> to your Netlify environment variables to enable AI
           </div>
         )}
         <div className="flex gap-2 items-center">

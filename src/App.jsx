@@ -50,25 +50,26 @@ function App() {
   }, [sidebarCollapsed]);
 
   // AI section enhancement
-  const handleAIEnhance = async (sectionId, text, type) => {
-    const enhanced = await ai.enhanceSectionText(text, type);
+  const handleAIEnhance = async (sectionId, textOrRole, typeOrCompany, itemIdx) => {
+    if (typeof itemIdx === 'number') {
+      const bullets = await ai.generateBulletsForRole(textOrRole, typeOrCompany);
+      if (bullets.length > 0) {
+        const sections = cvData.sections.map(s => {
+          if (s.id === sectionId && s.type === 'experience') {
+            const items = [...s.items];
+            items[itemIdx] = { ...items[itemIdx], bullets };
+            return { ...s, items };
+          }
+          return s;
+        });
+        setCvData(prev => ({ ...prev, sections }));
+      }
+      return;
+    }
+
+    const enhanced = await ai.enhanceSectionText(textOrRole, typeOrCompany);
     if (enhanced) {
       updateSection(sectionId, { content: enhanced.trim() });
-    }
-  };
-
-  const handleAIBullets = async (sectionId, role, company, itemIdx) => {
-    const bullets = await ai.generateBulletsForRole(role, company);
-    if (bullets.length > 0) {
-      const sections = cvData.sections.map(s => {
-        if (s.id === sectionId && s.type === 'experience') {
-          const items = [...s.items];
-          items[itemIdx] = { ...items[itemIdx], bullets: bullets };
-          return { ...s, items };
-        }
-        return s;
-      });
-      setCvData(prev => ({ ...prev, sections }));
     }
   };
 
@@ -214,7 +215,7 @@ function App() {
                       addSection={addSection}
                       removeSection={removeSection}
                       reorderSections={reorderSections}
-                      onAIEnhance={handleAIBullets}
+                      onAIEnhance={handleAIEnhance}
                       aiLoading={ai.isLoading}
                     />
                   </div>

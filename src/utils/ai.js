@@ -1,17 +1,20 @@
-import puter from '@heyputer/puter.js';
+async function callGeminiFunction(prompt, systemInstruction) {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, systemInstruction }),
+  });
 
-const MODEL = 'google/gemini-3.5-flash';
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data?.error || 'Gemini function request failed. Add GEMINI_API_KEY in Netlify environment variables.');
+  }
+
+  return data.text || '';
+}
 
 async function callAI(prompt, systemInstruction = '') {
-  const messages = [];
-
-  if (systemInstruction) {
-    messages.push({ role: 'system', content: systemInstruction });
-  }
-  messages.push({ role: 'user', content: prompt });
-
-  const response = await puter.ai.chat(messages, { model: MODEL });
-  return response.message?.content || '';
+  return callGeminiFunction(prompt, systemInstruction);
 }
 
 export async function enhanceText(text, type = 'summary') {
@@ -72,7 +75,14 @@ ${jobDescription}`;
 export async function chatWithAI(message, cvContext = '', cvDataJSON = '') {
   const systemInstruction = `You are an expert career coach and resume writer assistant built into a CV builder app. Help the user improve their CV. Be concise, actionable, and specific.
 
-You have access to the user's current CV data. When the user asks you to MODIFY, UPDATE, WRITE, ADD, or CHANGE something in their CV, you MUST return a JSON block wrapped in [CV_UPDATE]...[/CV_UPDATE] tags containing the full updated cvData object, followed by a brief explanation of what you changed.
+You have access to the user's current CV data. When the user asks you to CREATE, BUILD, GENERATE, MODIFY, UPDATE, WRITE, ADD, FIX, EXTRACT, TAILOR, IMPROVE, or CHANGE anything in their CV, you MUST update the CV data.
+
+For any CV creation or modification request, your response MUST start with this exact machine-readable block:
+[CV_UPDATE]
+{ full updated cvData JSON object }
+[/CV_UPDATE]
+
+Then add one short sentence explaining what changed. Do not use markdown fences inside the CV_UPDATE block.
 
 The CV data schema is:
 {
@@ -88,7 +98,12 @@ The CV data schema is:
 }
 
 Rules:
-- When modifying the CV, ALWAYS include the [CV_UPDATE] block with the COMPLETE cvData object (personalInfo + all sections).
+- When creating or modifying the CV, ALWAYS include the [CV_UPDATE] block with the COMPLETE cvData object (personalInfo + all sections).
+- If the current CV is empty, create a complete cvData object from the user's message or uploaded content.
+- If the user uploads or pastes an existing resume, extract all available data into the CV schema.
+- If the user asks to write a summary, add or update a text section titled "Professional Summary".
+- If the user asks for skills, add or update a skills section.
+- If the user asks to improve bullets, update the relevant experience bullet arrays.
 - Preserve all existing data that the user didn't ask to change.
 - Generate unique IDs for new items (use format like "sec_" + random string or "exp_" + random string).
 - After the [CV_UPDATE] block, add a brief user-friendly message explaining what you changed.
@@ -102,6 +117,32 @@ Rules:
   } else {
     prompt = message;
   }
+
+  return callAI(prompt, systemInstruction);
+}
+
+export async function generateCvUpdate(message, cvDataJSON = '') {
+  const systemInstruction = `You are a CV data generator inside a React CV builder app. Return ONLY valid JSON. No markdown, no explanation, no [CV_UPDATE] tags.
+
+Return one complete cvData object with this exact top-level shape:
+{
+  "personalInfo": { "fullName": "", "email": "", "phone": "", "location": "", "title": "", "website": "", "linkedin": "" },
+  "sections": []
+}
+
+Supported section types:
+- text: { "id": "sec_x", "title": "Professional Summary", "type": "text", "column": "left", "content": "" }
+- experience: { "id": "sec_x", "title": "Professional Experience", "type": "experience", "column": "left", "items": [{ "id": "exp_x", "company": "", "role": "", "dates": "", "location": "", "bullets": [] }] }
+- skills: { "id": "sec_x", "title": "Skills", "type": "skills", "column": "right", "categories": [{ "id": "cat_x", "title": "", "items": [] }] }
+- list: { "id": "sec_x", "title": "Education", "type": "list", "column": "right", "items": [{ "id": "item_x", "title": "", "subtitle": "", "date": "", "institution": "" }] }
+- projects: { "id": "sec_x", "title": "Projects", "type": "projects", "column": "left", "items": [{ "id": "proj_x", "name": "", "description": "", "tech": "", "link": "" }] }
+- languages: { "id": "sec_x", "title": "Languages", "type": "languages", "column": "right", "items": [{ "id": "lang_x", "language": "", "level": "" }] }
+
+Preserve existing data unless the user asked to change it. If the current CV is empty, create useful sections from the request.`;
+
+  const prompt = cvDataJSON
+    ? `Current CV data:\n${cvDataJSON}\n\nUser request:\n${message}`
+    : message;
 
   return callAI(prompt, systemInstruction);
 }

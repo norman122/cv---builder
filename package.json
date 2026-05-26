@@ -13,7 +13,6 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@fontsource/lato": "^5.2.7",
-    "@heyputer/puter.js": "^2.4.2",
     "@react-pdf/renderer": "^4.3.2",
     "framer-motion": "^12.40.0",
     "html2canvas": "^1.4.1",
