@@ -10,7 +10,7 @@ import Editor from './components/Editor';
 import AIChat from './components/AIChat';
 import ThemeCustomizer from './components/ThemeCustomizer';
 import { ClassicTemplate, ModernTemplate, MinimalTemplate } from './components/Preview';
-import { downloadPDF } from './utils/pdf';
+import { downloadPDF } from './utils/pdf.js';
 
 const TABS = [
   { id: 'editor', label: 'Editor', icon: PenTool },

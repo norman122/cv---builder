@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, View, Text, StyleSheet, pdf, Svg, Path, Circle, Rect, Polyline, Font } from '@react-pdf/renderer';
+import { Document, Page, View, Text, StyleSheet, Svg, Path, Circle, Rect, Polyline, Font } from '@react-pdf/renderer';
 import LatoRegular from '../fonts/lato-400-normal.ttf';
 import LatoItalic from '../fonts/lato-400-italic.ttf';
 import LatoBold from '../fonts/lato-700-normal.ttf';
@@ -41,7 +41,7 @@ function getContentWeight(cvData) {
 function getPdfScale(theme, cvData) {
   const baseScale = FONT_SCALE[theme.fontSize] || 1;
   const weight = getContentWeight(cvData);
-  const densityScale = weight > 110 ? 0.88 : weight > 88 ? 0.92 : weight > 68 ? 0.96 : 1;
+  const densityScale = weight > 120 ? 0.94 : weight > 92 ? 0.97 : 1;
   return baseScale * densityScale;
 }
 
@@ -52,45 +52,45 @@ function getPadding(theme, compact, normal, relaxed) {
 }
 
 function createStyles(theme, cvData) {
-  const padding = getPadding(theme, '8mm', '10mm', '13mm');
+  const padding = getPadding(theme, '8mm', '11mm', '14mm');
   const scale = getPdfScale(theme, cvData);
   const fs = (size) => size * scale;
 
   return StyleSheet.create({
     page: { fontFamily: 'Lato', padding, backgroundColor: '#ffffff', flexDirection: 'column' },
-    header: { borderBottomWidth: 2, borderBottomColor: LINE_COLOR, paddingBottom: 9, marginBottom: 12, alignItems: theme.headerStyle === 'centered' ? 'center' : 'flex-start' },
+    header: { borderBottomWidth: 2, borderBottomColor: LINE_COLOR, paddingBottom: 10, marginBottom: 13, alignItems: theme.headerStyle === 'centered' ? 'center' : 'flex-start' },
     name: { fontSize: fs(24), fontWeight: 900, letterSpacing: 0.2, marginBottom: 4, color: theme.accentColor },
     title: { fontSize: fs(9.5), fontWeight: 700, color: theme.secondaryColor, marginBottom: 6 },
     contactRow: { flexDirection: 'row', flexWrap: 'wrap', color: '#64748b', fontSize: fs(8.5) },
     contactItem: { flexDirection: 'row', alignItems: 'center', marginRight: 12, marginBottom: 2 },
     contactIcon: { marginRight: 3 },
     columns: { flexDirection: 'row', flexGrow: 1 },
-    leftCol: { width: '66%', paddingRight: 13 },
-    rightCol: { width: '34%', borderLeftWidth: 1, borderLeftColor: LINE_COLOR, paddingLeft: 11 },
-    section: { marginBottom: 12 },
-    sectionTitle: { fontSize: fs(9.5), fontWeight: 900, color: theme.accentColor, borderBottomWidth: 1, borderBottomColor: LINE_COLOR, paddingBottom: 3, marginBottom: 7, letterSpacing: 0.7 },
-    rightSectionTitle: { fontSize: fs(9), fontWeight: 900, color: theme.accentColor, borderBottomWidth: 2, borderBottomColor: LINE_COLOR, paddingBottom: 3, marginBottom: 7, letterSpacing: 0.7 },
-    expItem: { paddingLeft: 7, borderLeftWidth: 2, borderLeftColor: LINE_COLOR, marginBottom: 9 },
+    leftCol: { width: '67%', paddingRight: 14 },
+    rightCol: { width: '33%', borderLeftWidth: 1, borderLeftColor: LINE_COLOR, paddingLeft: 12 },
+    section: { marginBottom: 13 },
+    sectionTitle: { fontSize: fs(9.5), fontWeight: 900, color: theme.accentColor, borderBottomWidth: 1, borderBottomColor: LINE_COLOR, paddingBottom: 3, marginBottom: 8, letterSpacing: 0.6 },
+    rightSectionTitle: { fontSize: fs(8.8), fontWeight: 900, color: theme.accentColor, borderBottomWidth: 1, borderBottomColor: LINE_COLOR, paddingBottom: 3, marginBottom: 8, letterSpacing: 0.7 },
+    expItem: { paddingLeft: 8, borderLeftWidth: 2, borderLeftColor: LINE_COLOR, marginBottom: 10 },
     expRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 1 },
     expCompany: { fontSize: fs(10), fontWeight: 700, color: theme.accentColor },
     expDates: { fontSize: fs(7), fontWeight: 700, color: '#94a3b8', letterSpacing: 0.5 },
     expRole: { fontSize: fs(8.5), fontWeight: 700, color: theme.secondaryColor, marginBottom: 4 },
-    bullet: { flexDirection: 'row', marginBottom: 2, paddingLeft: 2 },
+    bullet: { flexDirection: 'row', marginBottom: 3, paddingLeft: 2 },
     bulletDot: { width: 3, height: 3, borderRadius: 2, backgroundColor: MARKER_COLOR, marginTop: 3.5, marginRight: 5 },
-    bulletText: { fontSize: fs(8), color: '#475569', flex: 1, lineHeight: 1.35 },
-    summaryText: { fontSize: fs(8), color: '#475569', fontStyle: 'italic', lineHeight: 1.6 },
-    skillCategory: { marginBottom: 7 },
+    bulletText: { fontSize: fs(8), color: '#475569', flex: 1, lineHeight: 1.45 },
+    summaryText: { fontSize: fs(8.2), color: '#475569', fontStyle: 'italic', lineHeight: 1.7 },
+    skillCategory: { marginBottom: 8 },
     skillCatTitle: { fontSize: fs(7), fontWeight: 900, color: theme.secondaryColor, letterSpacing: 0.8, marginBottom: 3 },
     skillRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
     skillDot: { width: 2.5, height: 2.5, borderRadius: 2, backgroundColor: MARKER_COLOR, marginRight: 4 },
     skillText: { fontSize: fs(8), color: '#334155', fontWeight: 400 },
-    listItem: { marginBottom: 7 },
+    listItem: { marginBottom: 8 },
     listTitle: { fontSize: fs(8.5), fontWeight: 700, color: theme.accentColor },
     listSubtitle: { fontSize: fs(7.5), color: theme.secondaryColor, fontWeight: 700, marginTop: 1 },
     listDate: { fontSize: fs(7), color: '#94a3b8', fontWeight: 700 },
     listInstitution: { fontSize: fs(7), color: '#64748b', fontStyle: 'italic' },
     projectName: { fontSize: fs(9), fontWeight: 700, color: theme.accentColor },
-    projectDesc: { fontSize: fs(7.5), color: '#475569', marginTop: 2, lineHeight: 1.4 },
+    projectDesc: { fontSize: fs(7.5), color: '#475569', marginTop: 2, lineHeight: 1.5 },
     projectTech: { fontSize: fs(7), fontWeight: 700, color: theme.secondaryColor, marginTop: 2 },
     langRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 },
     langName: { fontSize: fs(8.5), fontWeight: 700, color: '#334155' },
@@ -120,19 +120,19 @@ function createModernStyles(theme, cvData) {
     sidebarLangName: { fontSize: fs(8), fontWeight: 700, color: '#ffffff' },
     sidebarLangLevel: { fontSize: fs(7.5), color: '#ffffff99' },
     main: { flex: 1, padding },
-    section: { marginBottom: 11 },
-    sectionTitle: { fontSize: fs(9.5), fontWeight: 900, color: theme.accentColor, borderBottomWidth: 1, borderBottomColor: LINE_COLOR, paddingBottom: 3, marginBottom: 7, letterSpacing: 0.7 },
-    expItem: { paddingLeft: 7, borderLeftWidth: 2, borderLeftColor: LINE_COLOR, marginBottom: 10 },
+    section: { marginBottom: 13 },
+    sectionTitle: { fontSize: fs(9.5), fontWeight: 900, color: theme.accentColor, borderBottomWidth: 1, borderBottomColor: LINE_COLOR, paddingBottom: 3, marginBottom: 8, letterSpacing: 0.7 },
+    expItem: { paddingLeft: 8, borderLeftWidth: 2, borderLeftColor: LINE_COLOR, marginBottom: 11 },
     expRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 1 },
     expCompany: { fontSize: fs(10), fontWeight: 700, color: theme.accentColor },
     expDates: { fontSize: fs(7), fontWeight: 700, color: '#94a3b8', letterSpacing: 0.5 },
     expRole: { fontSize: fs(8.5), fontWeight: 700, color: theme.secondaryColor, marginBottom: 4 },
-    bullet: { flexDirection: 'row', marginBottom: 2, paddingLeft: 2 },
+    bullet: { flexDirection: 'row', marginBottom: 3, paddingLeft: 2 },
     bulletDot: { width: 3, height: 3, borderRadius: 2, backgroundColor: MARKER_COLOR, marginTop: 3.5, marginRight: 5 },
-    bulletText: { fontSize: fs(8), color: '#475569', flex: 1, lineHeight: 1.35 },
-    summaryText: { fontSize: fs(8), color: '#475569', fontStyle: 'italic', lineHeight: 1.6 },
+    bulletText: { fontSize: fs(8), color: '#475569', flex: 1, lineHeight: 1.45 },
+    summaryText: { fontSize: fs(8.2), color: '#475569', fontStyle: 'italic', lineHeight: 1.7 },
     projectName: { fontSize: fs(9), fontWeight: 700, color: theme.accentColor },
-    projectDesc: { fontSize: fs(7.5), color: '#475569', marginTop: 2, lineHeight: 1.4 },
+    projectDesc: { fontSize: fs(7.5), color: '#475569', marginTop: 2, lineHeight: 1.5 },
     projectTech: { fontSize: fs(7), fontWeight: 700, color: theme.secondaryColor, marginTop: 2 },
     listItem: { marginBottom: 7 },
     listTitle: { fontSize: fs(8.5), fontWeight: 700, color: theme.accentColor },
@@ -163,17 +163,17 @@ function createMinimalStyles(theme, cvData) {
     title: { fontSize: fs(11), fontWeight: 400, color: isBanner ? '#ffffffcc' : '#64748b', marginBottom: 8 },
     contactRow: { flexDirection: 'row', flexWrap: 'wrap', fontSize: fs(8.5), color: isBanner ? '#ffffffb3' : '#94a3b8' },
     contactItem: { marginRight: 12, marginBottom: 2 },
-    section: { marginBottom: 12 },
-    sectionTitle: { fontSize: fs(9.5), fontWeight: 900, color: theme.accentColor, borderBottomWidth: 1, borderBottomColor: LINE_COLOR, paddingBottom: 3, marginBottom: 7, letterSpacing: 0.8 },
-    expItem: { marginBottom: 9 },
+    section: { marginBottom: 14 },
+    sectionTitle: { fontSize: fs(9.5), fontWeight: 900, color: theme.accentColor, borderBottomWidth: 1, borderBottomColor: LINE_COLOR, paddingBottom: 3, marginBottom: 8, letterSpacing: 0.8 },
+    expItem: { marginBottom: 11 },
     expRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 1 },
     expCompany: { fontSize: fs(10.5), fontWeight: 700, color: '#1e293b' },
     expDates: { fontSize: fs(7.5), color: '#94a3b8' },
     expRole: { fontSize: fs(9), fontWeight: 400, color: theme.secondaryColor, marginBottom: 4 },
-    bullet: { flexDirection: 'row', marginBottom: 2, paddingLeft: 10 },
+    bullet: { flexDirection: 'row', marginBottom: 3, paddingLeft: 10 },
     bulletDot: { width: 3, height: 3, borderRadius: 2, backgroundColor: MARKER_COLOR, marginTop: 3.5, marginRight: 5 },
-    bulletText: { fontSize: fs(8), color: '#475569', flex: 1, lineHeight: 1.35 },
-    summaryText: { fontSize: fs(9), color: '#475569', lineHeight: 1.6 },
+    bulletText: { fontSize: fs(8), color: '#475569', flex: 1, lineHeight: 1.45 },
+    summaryText: { fontSize: fs(9), color: '#475569', lineHeight: 1.7 },
     skillCategory: { marginBottom: 5 },
     skillCatTitle: { fontSize: fs(7.5), fontWeight: 700, color: '#94a3b8' },
     skillText: { fontSize: fs(8.5), color: '#334155' },
@@ -183,7 +183,7 @@ function createMinimalStyles(theme, cvData) {
     listDate: { fontSize: fs(7.5), color: '#94a3b8' },
     listInstitution: { fontSize: fs(7.5), color: '#94a3b8', fontStyle: 'italic' },
     projectName: { fontSize: fs(9.5), fontWeight: 700, color: '#1e293b' },
-    projectDesc: { fontSize: fs(8), color: '#475569', marginTop: 2, lineHeight: 1.4 },
+    projectDesc: { fontSize: fs(8), color: '#475569', marginTop: 2, lineHeight: 1.5 },
     projectTech: { fontSize: fs(7.5), fontWeight: 700, color: theme.secondaryColor, marginTop: 2 },
     langRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 },
     langName: { fontSize: fs(8.5), fontWeight: 700, color: '#334155' },
@@ -467,26 +467,13 @@ function MinimalDocument({ cvData, theme }) {
   );
 }
 
-export async function downloadPDF(cvData, theme) {
-  const filename = `${cvData.personalInfo.fullName.replace(/\s+/g, '_') || 'My'}_CV.pdf`;
-
-  let doc;
+export function PdfDocument({ cvData, theme }) {
   switch (theme.template) {
     case 'modern':
-      doc = <ModernDocument cvData={cvData} theme={theme} />;
-      break;
+      return <ModernDocument cvData={cvData} theme={theme} />;
     case 'minimal':
-      doc = <MinimalDocument cvData={cvData} theme={theme} />;
-      break;
+      return <MinimalDocument cvData={cvData} theme={theme} />;
     default:
-      doc = <ClassicDocument cvData={cvData} theme={theme} />;
+      return <ClassicDocument cvData={cvData} theme={theme} />;
   }
-
-  const blob = await pdf(doc).toBlob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
 }

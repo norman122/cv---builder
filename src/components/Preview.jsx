@@ -7,11 +7,11 @@ const FONT_SCALE = { small: 0.92, medium: 1, large: 1.08 };
 
 function renderSection(section, theme, isRight = false) {
   const headingClass = isRight
-    ? 'text-[11px] font-black border-b-2 pb-1 mb-4 tracking-wider leading-none'
-    : 'text-sm font-black border-b pb-1.5 mb-4 tracking-tight leading-none';
+    ? 'text-[10.5px] font-black border-b pb-1 mb-3 tracking-wider leading-none'
+    : 'text-[13px] font-black border-b pb-1.5 mb-3 tracking-tight leading-none';
 
   return (
-    <section key={section.id} className="mb-6">
+    <section key={section.id} className="mb-5">
       <h3
         className={headingClass}
         style={{ color: theme.accentColor, borderColor: isRight ? theme.accentColor : '#e2e8f0' }}
@@ -26,14 +26,14 @@ function renderSection(section, theme, isRight = false) {
       )}
 
       {section.type === 'experience' && (
-        <div className="space-y-5">
+        <div className="space-y-4">
           {section.items?.map((exp, i) => (
             <div key={i} className="relative pl-3 border-l-2" style={{ borderColor: '#e2e8f0' }}>
               <div className="flex justify-between items-baseline mb-0.5">
                 <h4 className="text-[12px] font-black text-slate-900 tracking-tight">{exp.company}</h4>
                 <span className="text-[8px] font-bold text-slate-400 tracking-widest">{exp.dates}</span>
               </div>
-              <p className="text-[10.5px] font-bold mb-2" style={{ color: theme.secondaryColor }}>{exp.role}</p>
+              <p className="text-[10.5px] font-bold mb-1.5" style={{ color: theme.secondaryColor }}>{exp.role}</p>
               <ul className="space-y-1">
                 {exp.bullets?.filter(Boolean).map((b, bi) => (
                   <li key={bi} className="text-[10px] text-slate-600 leading-snug flex items-start gap-2">
@@ -48,7 +48,7 @@ function renderSection(section, theme, isRight = false) {
       )}
 
       {section.type === 'skills' && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {section.categories?.map((cat, ci) => (
             <div key={ci}>
               <h4 className="text-[9px] font-black mb-1.5 tracking-widest" style={{ color: theme.secondaryColor }}>{cat.title}</h4>
@@ -66,7 +66,7 @@ function renderSection(section, theme, isRight = false) {
       )}
 
       {section.type === 'list' && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {section.items?.map((item, i) => (
             <div key={i}>
               <p className="text-[10.5px] font-black text-slate-900 leading-tight">{item.title}</p>
@@ -79,7 +79,7 @@ function renderSection(section, theme, isRight = false) {
       )}
 
       {section.type === 'projects' && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {section.items?.map((item, i) => (
             <div key={i}>
               <p className="text-[11px] font-black text-slate-900">{item.name}</p>
@@ -105,7 +105,7 @@ function renderSection(section, theme, isRight = false) {
 }
 
 export function ClassicTemplate({ cvData, theme }) {
-  const spacing = theme.spacing === 'compact' ? 'p-[10mm]' : theme.spacing === 'relaxed' ? 'p-[15mm]' : 'p-[12mm]';
+  const spacing = theme.spacing === 'compact' ? 'p-[10mm]' : theme.spacing === 'relaxed' ? 'p-[14mm]' : 'p-[11mm]';
   const scale = FONT_SCALE[theme.fontSize] || 1;
   const left = cvData.sections.filter(s => s.column === 'left');
   const right = cvData.sections.filter(s => s.column === 'right');
@@ -113,14 +113,14 @@ export function ClassicTemplate({ cvData, theme }) {
   return (
     <div className={`bg-white w-[210mm] min-h-[297mm] ${spacing} text-slate-800`} style={{ fontFamily: theme.fontFamily, zoom: scale }}>
       {/* Header */}
-      <header className={`border-b-2 pb-5 mb-7 ${theme.headerStyle === 'centered' ? 'text-center' : ''}`} style={{ borderColor: theme.accentColor }}>
-        <h1 className="text-3xl font-black tracking-tight mb-3 leading-none" style={{ color: theme.accentColor }}>
+      <header className={`border-b-2 pb-4 mb-6 ${theme.headerStyle === 'centered' ? 'text-center' : ''}`} style={{ borderColor: '#e2e8f0' }}>
+        <h1 className="text-[29px] font-black tracking-tight mb-2 leading-none" style={{ color: theme.accentColor }}>
           {cvData.personalInfo.fullName}
         </h1>
         {cvData.personalInfo.title && (
-          <p className="text-[11px] font-bold mb-3" style={{ color: theme.secondaryColor }}>{cvData.personalInfo.title}</p>
+          <p className="text-[11px] font-bold mb-2.5" style={{ color: theme.secondaryColor }}>{cvData.personalInfo.title}</p>
         )}
-        <div className={`flex flex-wrap gap-x-6 gap-y-1 text-[10px] text-slate-500 font-medium ${theme.headerStyle === 'centered' ? 'justify-center' : ''}`}>
+        <div className={`flex flex-wrap gap-x-5 gap-y-1 text-[9.5px] text-slate-500 font-medium ${theme.headerStyle === 'centered' ? 'justify-center' : ''}`}>
           {cvData.personalInfo.email && <span className="flex items-center gap-1.5"><Mail size={10} /> {cvData.personalInfo.email}</span>}
           {cvData.personalInfo.phone && <span className="flex items-center gap-1.5"><Phone size={10} /> {cvData.personalInfo.phone}</span>}
           {cvData.personalInfo.location && <span className="flex items-center gap-1.5"><MapPin size={10} /> {cvData.personalInfo.location}</span>}
@@ -130,11 +130,11 @@ export function ClassicTemplate({ cvData, theme }) {
       </header>
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-12 gap-8">
-        <div className="col-span-8 space-y-1">
+      <div className="grid grid-cols-12 gap-7">
+        <div className="col-span-8">
           {left.map(s => renderSection(s, theme, false))}
         </div>
-        <div className="col-span-4 border-l border-slate-100 pl-4 space-y-1">
+        <div className="col-span-4 border-l border-slate-100 pl-4">
           {right.map(s => renderSection(s, theme, true))}
         </div>
       </div>
